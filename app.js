@@ -1,7 +1,7 @@
 // Fetches location data from Mapbox and uses latitude and longitude
 // to fetch weather from specified place.
-// USAGE: node weather.js 'CITY' 'COUNTRY CODE'
-// e.g. node weather.js 'Monterrey' 'mx'
+// USAGE: node app.js 'CITY' 'COUNTRY CODE'
+// e.g. node app.js 'Monterrey' 'mx'
 
 const credentials = require("./credentials.js");
 const request = require("request");
@@ -63,8 +63,9 @@ function getLocationWeather(city, country) {
 }
 
 if (process.argv.length < 4) {
-  console.log("Usage: 'node weather.js 'CITY' 'COUNTRY CODE'");
-  console.log("e.g. node weather.js 'Monterrey' 'mx'");
+  console.log("Recommended usage: node app.js 'CITY' 'COUNTRY CODE'");
+  console.log("Using default: node app.js 'Monterrey' 'mx'");
+  getLocationWeather("Monterrey", "mx");
 } else {
   getLocationWeather(process.argv[2], process.argv[3]);
 }
