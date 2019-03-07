@@ -21,44 +21,38 @@ function getPointsFromResponse(data) {
 }
 
 function getWeatherData(location_points, callback) {
-  const weather_request =
-    DARKSKY_URL +
-    `${location_points.latitude},${location_points.longitude}?units=si`;
+  const weather_request = DARKSKY_URL + `${location_points.latitude},${location_points.longitude}?units=si`;
 
-  request(weather_request, function(error, response, body) {
+  request({ url: weather_request, json: true }, function(error, response, body) {
     if (error) {
       console.log("Error fetching weather: " + error);
       return;
     }
 
-    const data = JSON.parse(body);
-    const temperature = data.currently.temperature;
-    const precip_probability = data.currently.precipProbability;
-    const summary = data.currently.summary;
+    const temperature = body.currently.temperature;
+    const precip_probability = body.currently.precipProbability;
+    const summary = body.currently.summary;
     return callback(temperature, precip_probability, summary);
   });
 }
 
 function getLocationWeather(city, country) {
   const place_request = MAPBOX_URL + `${city}.json?country=${country}&types=place&access_token=${credentials.MAPBOX_TOKEN}`;
-  request(place_request, function(error, response, body) {
+  request({ url: place_request, json: true }, function(error, response, body) {
     if (error) {
       console.log(`Error fetching location: ${error}`);
       return;
     }
 
-    const data = JSON.parse(body);
-    if (data.features.length === 0) {
+    if (body.features.length === 0) {
       console.log(`No location found with name: ${city}, ${country}`);
       return;
     }
 
-    const location_name = getNameFromResponse(data);
-    const location_points = getPointsFromResponse(data);
+    const location_name = getNameFromResponse(body);
+    const location_points = getPointsFromResponse(body);
     getWeatherData(location_points, function(weather, precip_probability, summary) {
-      console.log(
-        `Today is ${summary.toLowerCase()}. It is currently ${weather} degrees Celsius in ${location_name}. The probability of rain is ${precip_probability * 100}%.`
-      );
+      console.log(`Today is ${summary.toLowerCase()}. It is currently ${weather} degrees Celsius in ${location_name}. The probability of rain is ${precip_probability *100}%.`);
     });
   });
 }
