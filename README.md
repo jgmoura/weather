@@ -17,4 +17,4 @@ Example: `node app.js 'Sao Paulo' 'br'`
 
 Should give the following output:
 
-`It is current 22.39 degrees Celsius in São Paulo, São Paulo, Brazil. The probability of rain is 19%.`
+`Today is mostly cloudy. It is currently 20 degrees Celsius in São Paulo, São Paulo, Brazil. The probability of rain is 10%`

@@ -34,7 +34,8 @@ function getWeatherData(location_points, callback) {
     const data = JSON.parse(body);
     const temperature = data.currently.temperature;
     const precip_probability = data.currently.precipProbability;
-    return callback(temperature, precip_probability);
+    const summary = data.currently.summary;
+    return callback(temperature, precip_probability, summary);
   });
 }
 
@@ -42,21 +43,21 @@ function getLocationWeather(city, country) {
   const place_request = MAPBOX_URL + `${city}.json?country=${country}&types=place&access_token=${credentials.MAPBOX_TOKEN}`;
   request(place_request, function(error, response, body) {
     if (error) {
-      console.log("Error fetching location: " + error);
+      console.log(`Error fetching location: ${error}`);
       return;
     }
 
     const data = JSON.parse(body);
     if (data.features.length === 0) {
-      console.log("No location found with name: Monterrey");
+      console.log(`No location found with name: ${city}, ${country}`);
       return;
     }
 
     const location_name = getNameFromResponse(data);
     const location_points = getPointsFromResponse(data);
-    getWeatherData(location_points, function(weather, precip_probability) {
+    getWeatherData(location_points, function(weather, precip_probability, summary) {
       console.log(
-        `It is current ${weather} degrees Celsius in ${location_name}. The probability of rain is ${precip_probability * 100}%.`
+        `Today is ${summary.toLowerCase()}. It is currently ${weather} degrees Celsius in ${location_name}. The probability of rain is ${precip_probability * 100}%.`
       );
     });
   });
