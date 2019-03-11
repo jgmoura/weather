@@ -20,7 +20,7 @@ function getPointsFromResponse(data) {
   };
 }
 
-function getWeatherData(location_points, callback) {
+function getWeatherData(location_points, location_name, callback) {
   const weather_request = DARKSKY_URL + `${location_points.latitude},${location_points.longitude}?units=si`;
 
   request({ url: weather_request, json: true }, function(error, response, body) {
@@ -32,11 +32,11 @@ function getWeatherData(location_points, callback) {
     const temperature = body.currently.temperature;
     const precip_probability = body.currently.precipProbability;
     const summary = body.currently.summary;
-    return callback(temperature, precip_probability, summary);
+    return callback(temperature, precip_probability, summary, location_name);
   });
 }
 
-function getLocationWeather(city, country) {
+function getLocationWeather(city, country, callback) {
   const place_request = MAPBOX_URL + `${city}.json?country=${country}&types=place&access_token=${credentials.MAPBOX_TOKEN}`;
   request({ url: place_request, json: true }, function(error, response, body) {
     if (error) {
@@ -51,16 +51,18 @@ function getLocationWeather(city, country) {
 
     const location_name = getNameFromResponse(body);
     const location_points = getPointsFromResponse(body);
-    getWeatherData(location_points, function(weather, precip_probability, summary) {
-      console.log(`Today is ${summary.toLowerCase()}. It is currently ${weather} degrees Celsius in ${location_name}. The probability of rain is ${precip_probability *100}%.`);
-    });
+    getWeatherData(location_points, location_name, callback);
   });
+}
+
+const printSummary = function (weather, precip_probability, summary, location_name) {
+  console.log(`Today is ${summary.toLowerCase()}. It is currently ${weather} degrees Celsius in ${location_name}. The probability of rain is ${precip_probability *100}%.`);
 }
 
 if (process.argv.length < 4) {
   console.log("Recommended usage: node app.js 'CITY' 'COUNTRY CODE'");
-  console.log("Using default: node app.js 'Monterrey' 'mx'");
+  console.log("Using default: node app.js 'Monterrey' 'mx'", printSummary);
   getLocationWeather("Monterrey", "mx");
 } else {
-  getLocationWeather(process.argv[2], process.argv[3]);
+  getLocationWeather(process.argv[2], process.argv[3], printSummary);
 }
