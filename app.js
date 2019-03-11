@@ -25,14 +25,16 @@ function getWeatherData(location_points, location_name, callback) {
 
   request({ url: weather_request, json: true }, function(error, response, body) {
     if (error) {
-      console.log("Error fetching weather: " + error);
-      return;
+      return callback(`Error fetching weather: ${error}`, undefined);
     }
 
-    const temperature = body.currently.temperature;
-    const precip_probability = body.currently.precipProbability;
-    const summary = body.currently.summary;
-    return callback(temperature, precip_probability, summary, location_name);
+    const data = {
+      temperature: body.currently.temperature,
+      precip_probability: body.currently.precipProbability,
+      summary: body.currently.summary,
+      location_name: location_name
+    };
+    return callback(undefined, data);
   });
 }
 
@@ -40,13 +42,14 @@ function getLocationWeather(city, country, callback) {
   const place_request = MAPBOX_URL + `${city}.json?country=${country}&types=place&access_token=${credentials.MAPBOX_TOKEN}`;
   request({ url: place_request, json: true }, function(error, response, body) {
     if (error) {
-      console.log(`Error fetching location: ${error}`);
-      return;
+      return callback(`Error fetching location: ${error}`, undefined);
     }
 
     if (body.features.length === 0) {
-      console.log(`No location found with name: ${city}, ${country}`);
-      return;
+      return callback(
+        `No location found with name: ${city}, ${country}`,
+        undefined
+      );
     }
 
     const location_name = getNameFromResponse(body);
@@ -55,9 +58,20 @@ function getLocationWeather(city, country, callback) {
   });
 }
 
-const printSummary = function (weather, precip_probability, summary, location_name) {
-  console.log(`Today is ${summary.toLowerCase()}. It is currently ${weather} degrees Celsius in ${location_name}. The probability of rain is ${precip_probability *100}%.`);
-}
+const printSummary = function(error, response) {
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  console.log(
+    `Today is ${response.summary.toLowerCase()}. It is currently ${
+      response.weather
+    } degrees Celsius in ${
+      response.location_name
+    }. The probability of rain is ${response.precip_probability * 100}%.`
+  );
+};
 
 if (process.argv.length < 4) {
   console.log("Recommended usage: node app.js 'CITY' 'COUNTRY CODE'");
