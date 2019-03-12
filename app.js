@@ -28,6 +28,10 @@ function getWeatherData(location_points, location_name, callback) {
       return callback(`Error fetching weather: ${error}`, undefined);
     }
 
+    if (response.statusCode >= 400) {
+      return callback('Error communicating with DarkSky API.');
+    }
+
     const data = {
       temperature: body.currently.temperature,
       precip_probability: body.currently.precipProbability,
@@ -43,6 +47,10 @@ function getLocationWeather(city, country, callback) {
   request({ url: place_request, json: true }, function(error, response, body) {
     if (error) {
       return callback(`Error fetching location: ${error}`, undefined);
+    }
+
+    if (response.statusCode >= 400) {
+      return callback('Error communicating with Mapbox API.');
     }
 
     if (body.features.length === 0) {
