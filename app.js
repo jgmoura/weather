@@ -29,7 +29,7 @@ function getWeatherData(location_points, location_name, callback) {
     }
 
     if (response.statusCode >= 400) {
-      return callback('Error communicating with DarkSky API.');
+      return callback('Error communicating with DarkSky API.', undefined);
     }
 
     const data = {
@@ -50,7 +50,7 @@ function getLocationWeather(city, country, callback) {
     }
 
     if (response.statusCode >= 400) {
-      return callback('Error communicating with Mapbox API.');
+      return callback('Error communicating with Mapbox API.', undefined);
     }
 
     if (body.features.length === 0) {
