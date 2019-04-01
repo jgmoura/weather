@@ -9,12 +9,13 @@ Installation:
 
 `npm install`
 
-It takes two arguments to run:
-* City name
-* Country code ([According to ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2))
-
-Example: `node app.js 'Sao Paulo' 'br'`
+Example: `localhost:3000/weather?search=Monterrey`
 
 Should give the following output:
 
-`Today is mostly cloudy. It is currently 20 degrees Celsius in São Paulo, São Paulo, Brazil. The probability of rain is 10%`
+```json
+{
+"location": "Monterrey",
+"weather": "Today is mostly cloudy. It is currently 10.44 degrees Celsius in Monterrey, Nuevo León, Mexico. The probability of rain is 0%."
+}
+```
