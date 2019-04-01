@@ -20,71 +20,52 @@ function getPointsFromResponse(data) {
   };
 }
 
-function getWeatherData(location_points, location_name, callback) {
-  const weather_request = DARKSKY_URL + `${location_points.latitude},${location_points.longitude}?units=si`;
+function getWeatherData(location_points, callback) {
+  const weather_request =
+    DARKSKY_URL +
+    `${location_points.latitude},${location_points.longitude}?units=si`;
 
-  request({ url: weather_request, json: true }, function(error, response, body) {
+  request(weather_request, function(error, response, body) {
     if (error) {
-      return callback(`Error fetching weather: ${error}`, undefined);
+      console.log("Error fetching weather: " + error);
+      return;
     }
 
-    if (response.statusCode >= 400) {
-      return callback('Error communicating with DarkSky API.', undefined);
-    }
-
-    const data = {
-      temperature: body.currently.temperature,
-      precip_probability: body.currently.precipProbability,
-      summary: body.currently.summary,
-      location_name: location_name
-    };
-    return callback(undefined, data);
+    const data = JSON.parse(body);
+    const temperature = data.currently.temperature;
+    const precip_probability = data.currently.precipProbability;
+    return callback(temperature, precip_probability);
   });
 }
 
-function getLocationWeather(city, country, callback) {
+function getLocationWeather(city, country) {
   const place_request = MAPBOX_URL + `${city}.json?country=${country}&types=place&access_token=${credentials.MAPBOX_TOKEN}`;
-  request({ url: place_request, json: true }, function(error, response, body) {
+  request(place_request, function(error, response, body) {
     if (error) {
-      return callback(`Error fetching location: ${error}`, undefined);
+      console.log("Error fetching location: " + error);
+      return;
     }
 
-    if (response.statusCode >= 400) {
-      return callback('Error communicating with Mapbox API.', undefined);
+    const data = JSON.parse(body);
+    if (data.features.length === 0) {
+      console.log("No location found with name: Monterrey");
+      return;
     }
 
-    if (body.features.length === 0) {
-      return callback(
-        `No location found with name: ${city}, ${country}`,
-        undefined
+    const location_name = getNameFromResponse(data);
+    const location_points = getPointsFromResponse(data);
+    getWeatherData(location_points, function(weather, precip_probability) {
+      console.log(
+        `It is current ${weather} degrees Celsius in ${location_name}. The probability of rain is ${precip_probability * 100}%.`
       );
-    }
-
-    const location_name = getNameFromResponse(body);
-    const location_points = getPointsFromResponse(body);
-    getWeatherData(location_points, location_name, callback);
+    });
   });
 }
-
-const printSummary = function(error, response) {
-  if (error) {
-    console.log(error);
-    return;
-  }
-
-  console.log(
-    `Today is ${response.summary.toLowerCase()}. It is currently ${
-      response.weather
-    } degrees Celsius in ${
-      response.location_name
-    }. The probability of rain is ${response.precip_probability * 100}%.`
-  );
-};
 
 if (process.argv.length < 4) {
   console.log("Recommended usage: node app.js 'CITY' 'COUNTRY CODE'");
-  console.log("Using default: node app.js 'Monterrey' 'mx'", printSummary);
+  console.log("Using default: node app.js 'Monterrey' 'mx'");
   getLocationWeather("Monterrey", "mx");
 } else {
-  getLocationWeather(process.argv[2], process.argv[3], printSummary);
+  getLocationWeather(process.argv[2], process.argv[3]);
 }
