@@ -7,6 +7,7 @@ let DARK_SKY_KEY;
 let MAPBOX_KEY;
 
 if (process.env.WEATHER_APP_ENV === 'prod') {
+  console.log("fetched prod keys");
   DARK_SKY_KEY = process.env.DARK_SKY_SECRET_KEY;
   MAPBOX_KEY = process.env.MAPBOX_TOKEN;
 } else {
