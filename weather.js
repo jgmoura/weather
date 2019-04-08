@@ -3,11 +3,21 @@
 // USAGE: node app.js 'CITY' 'COUNTRY CODE'
 // e.g. node app.js 'Monterrey' 'mx'
 
-const credentials = require("./credentials.js");
-const request = require("request");
+let DARK_SKY_KEY;
+let MAPBOX_KEY;
+
+if (process.env.WEATHER_APP_ENV === 'prod') {
+  DARK_SKY_KEY = process.env.DARK_SKY_SECRET_KEY;
+  MAPBOX_KEY = process.env.MAPBOX_TOKEN;
+} else {
+  const credentials = require("./credentials.js");
+  DARK_SKY_KEY = credentials.DARK_SKY_SECRET_KEY;
+  MAPBOX_KEY = credentials.MAPBOX_TOKEN;
+}
 
 const MAPBOX_URL = `https://api.mapbox.com/geocoding/v5/mapbox.places/`;
-const DARKSKY_URL = `https://api.darksky.net/forecast/${credentials.DARK_SKY_SECRET_KEY}/`;
+const DARKSKY_URL = `https://api.darksky.net/forecast/${DARK_SKY_KEY}/`;
+const request = require("request");
 
 function getNameFromResponse(data) {
   return data.features[0].place_name;
@@ -43,7 +53,7 @@ function getWeatherData(location_points, location_name, callback) {
 }
 
 const getLocationWeather = function(city, callback) {
-  const place_request = MAPBOX_URL + `${city}.json?types=place&access_token=${credentials.MAPBOX_TOKEN}`;
+  const place_request = MAPBOX_URL + `${city}.json?types=place&access_token=${MAPBOX_KEY}`;
   request({ url: place_request, json: true }, function(error, response, body) {
     if (error) {
       return callback(`Error fetching location: ${error}`, undefined);
